@@ -1,5 +1,5 @@
 import time
-
+import os
 from sensor import Sensor
 
 class MainLoop:
@@ -11,7 +11,8 @@ class MainLoop:
     
     def init(self):
         print("Init Started")
-        fh = open("sensorList.csv", "r")
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        fh = open(os.path.join(__location__, "sensorList.csv"), "r")
         while True:
             line = fh.readline()
             if not line:
