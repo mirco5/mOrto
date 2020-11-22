@@ -1,10 +1,13 @@
 import time
 import os
-from sensor import Sensor
+from Device import Device, Nozzle, Ultrasonic
 
 class MainLoop:
-    i=0
-    sensors = dict()
+    tickCounter=0
+    __devices__ = dict()
+
+    def getname(self):
+        return self.__devices__
 
     def __init__(self, tick):
         self.tick = tick
@@ -18,8 +21,15 @@ class MainLoop:
             if not line:
                 break
             tokens = line.split(";")
-            MainLoop.sensors[tokens[0]] = Sensor(tokens[0],tokens[1].replace("\n",""))  
+            # To do differentiate devices
+            self.__devices__[tokens[0]] = Ultrasonic(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
         fh.close()
+
+        for x in self.__devices__:
+            x.init()
+            
+        # To do start sensors
+
         print("Init Finished")
 
     def run(self):
@@ -28,15 +38,11 @@ class MainLoop:
             startTime = time.time()
 
             # Do Something
-            MainLoop.i +=1
-            print(MainLoop.i)
+            MainLoop.tickCounter +=1
+            print(MainLoop.tickCounter)
 
             # Start Compute Time
             endTime = time.time()
             remainingTime = endTime - startTime
             time.sleep(self.tick - remainingTime)
             # End Compute Time
-
-         
-
-

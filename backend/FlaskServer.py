@@ -1,24 +1,18 @@
 import os
 from flask import Flask
 from gpiozero import CPUTemperature
-from mainloop import MainLoop
-
+from MainLoop import MainLoop
 
 app = Flask(__name__)
 
-
-@app.route('/')
-def hello():
-    return "Hello World!"
-
+def run():
+    app.run(host = '192.168.1.169') 
 
 @app.route('/temperature')
 def hello_name():
     cpu = CPUTemperature()
     return str(cpu.temperature)
 
-if __name__ == '__main__':
-    mnlp = MainLoop(1)
-    mnlp.init()
-    mnlp.run()
-    app.run(host= '192.168.1.169')
+@app.route('/devices/<devicekey>')
+def device(devicekey):
+    return str(MainLoop.__devices__[devicekey])
