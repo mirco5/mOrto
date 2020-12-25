@@ -2,10 +2,11 @@ import time
 import os
 from Device import Device, Nozzle, Ultrasonic
 import Singleton
+from FlaskServer import devices
 
 class MainLoop:
+    global devices
     tickCounter=0
-    __devices__ = dict()
     tick = 1
 
     def __init__(self, tick):
@@ -21,26 +22,36 @@ class MainLoop:
                 break
             tokens = line.split(";")
             if tokens[1].lower() == "nozzle":
-                self.__devices__[tokens[0]] = Nozzle(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
+                devices[tokens[0]] = Nozzle(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
             elif tokens[1].lower() == "ultrasonic":
-                self.__devices__[tokens[0]] = Ultrasonic(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
+                devices[tokens[0]] = Ultrasonic(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
 
         fh.close()
-        for x in self.__devices__:
-            self.__devices__[x].init()
+        for x in devices:
+            devices[x].init()
         print("Init Finished")
 
     def run(self):
         print("Main Loop Started")
         while True:
             startTime = time.time()
-
-            # Do Something
+            # TO DO CHECK DEVICE STATE AND CHANGE IT
             MainLoop.tickCounter +=1
             print(MainLoop.tickCounter)
+
+            for x in devices:
+                if devices[x].requestedStatus != 0 :
+                    if devices[x].requestedStatus==2 :
+                        devices[x].run()
+                    if devices[x].requestedStatus==3 :
+                        devices[x].stop()
+                    if devices[x].requestedStatus==4 :
+                        devices[x].carryOn()
+                    devices[x].requestedStatus = 0
 
             # Start Compute Time
             endTime = time.time()
             remainingTime = endTime - startTime
-            time.sleep(Singleton.Singleton.getInstance().SysTick - remainingTime)
+            if Singleton.Singleton.getInstance().SysTick - remainingTime >0 :
+                time.sleep(Singleton.Singleton.getInstance().SysTick - remainingTime)
             # End Compute Time

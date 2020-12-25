@@ -14,4 +14,4 @@ class Singleton:
          Singleton.__instance = self
    @property
    def SysTick(self):
-      return int(1)  
+      return int(1)

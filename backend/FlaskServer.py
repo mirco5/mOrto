@@ -1,9 +1,9 @@
 import os
 from flask import Flask
 from gpiozero import CPUTemperature
-from MainLoop import MainLoop
 import json
 
+devices = dict()
 app = Flask(__name__)
 
 def run():
@@ -16,17 +16,27 @@ def hello_name():
 
 @app.route('/devices/<devicekey>')
 def device(devicekey):
-    return json.dumps(MainLoop.__devices__[devicekey].__dict__)
+    global devices
+    return json.dumps(devices[devicekey].__dict__)
 
 @app.route('/devices/<devicekey>/run')
 def device_run(devicekey):
-    return json.dumps(MainLoop.__devices__[devicekey].run())
+    global devices
+    devices[devicekey].requestedStatus=int(2)
+    return json.dumps(1)
 
 @app.route('/devices/<devicekey>/stop')
 def device_stop(devicekey):
-    return json.dumps(MainLoop.__devices__[devicekey].stop())
+    global devices
+    devices[devicekey].requestedStatus=int(3)
+    return json.dumps(1)
 
-@app.route('/devices/<devicekey>/carryOn/<time>')
-def device_carryOn(devicekey, time):
-    return json.dumps(MainLoop.__devices__[devicekey].carryOn(int(time)))
+@app.route('/devices/<devicekey>/carryOn/<time>/<tick>')
+def device_carryOn(devicekey, time, tick):
+    global devices
+    devices[devicekey].requestedStatus = int(4)
+    devices[devicekey].carryOnTime = float(time)
+    devices[devicekey].carryOnTick = float(tick)
+    # TO DO insert carry on time
+    return json.dumps(1)
 
