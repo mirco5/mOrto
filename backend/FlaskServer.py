@@ -10,7 +10,7 @@ def run():
     app.run(host = '192.168.1.169') 
 
 @app.route('/temperature')
-def hello_name():
+def temperature():
     cpu = CPUTemperature()
     return str(cpu.temperature)
 
@@ -23,13 +23,13 @@ def device(devicekey):
 def device_run(devicekey):
     global devices
     devices[devicekey].requestedStatus=int(2)
-    return json.dumps(1)
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 @app.route('/devices/<devicekey>/stop')
 def device_stop(devicekey):
     global devices
     devices[devicekey].requestedStatus=int(3)
-    return json.dumps(1)
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 @app.route('/devices/<devicekey>/carryOn/<time>/<tick>')
 def device_carryOn(devicekey, time, tick):
@@ -37,6 +37,6 @@ def device_carryOn(devicekey, time, tick):
     devices[devicekey].requestedStatus = int(4)
     devices[devicekey].carryOnTime = float(time)
     devices[devicekey].carryOnTick = float(tick)
-    # TO DO insert carry on time
-    return json.dumps(1)
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+
 

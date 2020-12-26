@@ -1,9 +1,9 @@
 import time
 import os
-from Device import Device, Nozzle, Ultrasonic
-import Singleton
+from Device import Device, Nozzle, Ultrasonic, TermoMeter, HumidityMeter, TerrainHumidityMeter
+from Singleton import Singleton
 from FlaskServer import devices
-
+from Recipe import Recipe
 class MainLoop:
     global devices
     tickCounter=0
@@ -14,9 +14,8 @@ class MainLoop:
         self.tick = tick
      
     def init(self):
-        print("Init Started")
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        fh = open(os.path.join(__location__, "sensorList.csv"), "r")
+        fh = open(os.path.join(__location__, "./configFiles/sensorList.csv"), "r")
         while True:
             line = fh.readline()
             if not line:
@@ -26,17 +25,32 @@ class MainLoop:
                 devices[tokens[0]] = Nozzle(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
             elif tokens[1].lower() == "ultrasonic":
                 devices[tokens[0]] = Ultrasonic(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
+            elif tokens[1].lower() == "termometer":
+                devices[tokens[0]] = TermoMeter(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
+            elif tokens[1].lower() == "humiditymeter":
+                devices[tokens[0]] = HumidityMeter(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
+            elif tokens[1].lower() == "terrainhumiditymeter":
+                devices[tokens[0]] = TerrainHumidityMeter(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
         fh.close()
         for x in devices:
             devices[x].init()
             devices[x].status=3
-        print("Init Finished")
+        
+        fh = open(os.path.join(__location__, "./configFiles/recipesList.csv"), "r")
+        while True:
+            line = fh.readline()
+            if not line:
+                break
+            tokens = line.split(";")
+            if tokens[1].lower() == "nozzle":
+                devices[tokens[0]] = Recipe(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","), tokens[3].replace("\n",""), tokens[4].replace("\n","")) 
+        fh.close()
 
     def run(self):
         print("Main Loop Started")
         while True:
             startTime = time.time()
-            # TO DO CHECK DEVICE STATE AND CHANGE IT
+
             MainLoop.tickCounter +=1
             print(MainLoop.tickCounter)
 
@@ -60,6 +74,6 @@ class MainLoop:
             # Start Compute Time
             endTime = time.time()
             remainingTime = endTime - startTime
-            if Singleton.Singleton.getInstance().SysTick - remainingTime >0 :
-                time.sleep(Singleton.Singleton.getInstance().SysTick - remainingTime)
+            if Singleton.getInstance().SysTick - remainingTime >0 :
+                time.sleep(Singleton.getInstance().SysTick - remainingTime)
             # End Compute Time

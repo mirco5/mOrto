@@ -8,6 +8,7 @@ import Singleton
 from enum import Enum
 import threading
 from abc import ABCMeta, abstractmethod
+import six
 
 def threaded(fn):
     def wrapper(*args, **kwargs):
@@ -16,7 +17,8 @@ def threaded(fn):
         return thread
     return wrapper
 
-class Device(metaclass=abc.ABCMeta):
+@six.add_metaclass(abc.ABCMeta)
+class Device():
     status = 0
     requestedStatus = 0
     carryOnTick = 0
@@ -27,12 +29,6 @@ class Device(metaclass=abc.ABCMeta):
         self.__typ = typ
         self.__pins = pins
 
-    @property
-    def value(self):
-        return self.__value
-    @value.setter
-    def value(self, value):
-        self.__value=value
     @property
     def name(self):
         return self.__name
@@ -76,6 +72,15 @@ class Device(metaclass=abc.ABCMeta):
         pass
 
 @Device.register
+class MeterDevice(Device):
+    @property
+    def value(self):
+        return self.__value
+    @value.setter
+    def value(self, value):
+        self.__value=value
+
+@Device.register
 class Nozzle(Device):
     @property
     def obit(self):
@@ -97,7 +102,52 @@ class Nozzle(Device):
         print("Exit Finished:" + self.name)
 
 @Device.register
-class Ultrasonic(Device):
+class Ultrasonic(MeterDevice):
+    @threaded
+    def init(self):
+        print("Init Finished:" + self.name)
+    @threaded
+    def run(self):
+        print("Run:" + self.name)
+    @threaded
+    def stop(self):
+        print("Stop Finished:" + self.name)
+    @threaded
+    def exit(self):
+        print("Exit Finished:" + self.name)
+
+@Device.register
+class TermoMeter(MeterDevice):
+    @threaded
+    def init(self):
+        print("Init Finished:" + self.name)
+    @threaded
+    def run(self):
+        print("Run:" + self.name)
+    @threaded
+    def stop(self):
+        print("Stop Finished:" + self.name)
+    @threaded
+    def exit(self):
+        print("Exit Finished:" + self.name)
+
+@Device.register
+class HumidityMeter(MeterDevice):
+    @threaded
+    def init(self):
+        print("Init Finished:" + self.name)
+    @threaded
+    def run(self):
+        print("Run:" + self.name)
+    @threaded
+    def stop(self):
+        print("Stop Finished:" + self.name)
+    @threaded
+    def exit(self):
+        print("Exit Finished:" + self.name)          
+
+@Device.register
+class TerrainHumidityMeter(MeterDevice):
     @threaded
     def init(self):
         print("Init Finished:" + self.name)
