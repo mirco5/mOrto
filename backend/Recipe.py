@@ -1,32 +1,16 @@
-import abc
-from gpiozero import LED
 import json
 import time
-import sys
-import MainLoop
-import Singleton
-from enum import Enum
-import threading
-from abc import ABCMeta, abstractmethod
-import six
-from FlaskServer import devices
- 
-
-def threaded(fn):
-    def wrapper(*args, **kwargs):
-        thread = threading.Thread(name=fn, target=fn, args=args, kwargs=kwargs)
-        thread.start()
-        return thread
-    return wrapper
+from Device import devices
+recipes = dict()
 
 class Recipe():
     __checks=[]
-    def __init__(self, name, description, deviceslist, frequency, duration):
+    def __init__(self, name, description, recipeDevices, frequency, duration):
         global devices
         self.__name = name
         self.__description = description
         self.__recipeDevices = dict()
-        for x in deviceslist:
+        for x in recipeDevices:
            self.__recipeDevices[x] = devices[x]
         self.__frequency = frequency
         self.__duration = duration
@@ -50,7 +34,7 @@ class Recipe():
     def description(self, description):
         self.__description=description
     @property
-    def devices(self):
+    def recipeDevices(self):
         return self.__recipeDevices
     @property
     def frequency(self):

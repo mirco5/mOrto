@@ -2,8 +2,10 @@ import os
 from flask import Flask
 from gpiozero import CPUTemperature
 import json
+from Recipe import Recipe
+from Recipe import recipes
+from Device import devices
 
-devices = dict()
 app = Flask(__name__)
 
 def run():
@@ -39,4 +41,12 @@ def device_carryOn(devicekey, time, tick):
     devices[devicekey].carryOnTick = float(tick)
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
+@app.route('/recipe/<recipekey>')
+def recipe(recipekey):
+    global devices
+    return json.dumps(devices[recipekey].__dict__)
 
+@app.route('/recipe/<recipekey>/<description>/<devices>/<frequency>/<duration>')
+def recipe_create(recipekey,description,devices,frequency,duration):
+    recipes[recipekey] = Recipe(recipekey,description,devices,frequency,duration) 
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 

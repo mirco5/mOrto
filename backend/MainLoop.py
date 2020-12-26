@@ -2,10 +2,13 @@ import time
 import os
 from Device import Device, Nozzle, Ultrasonic, TermoMeter, HumidityMeter, TerrainHumidityMeter
 from Singleton import Singleton
-from FlaskServer import devices
+from Device import devices
+from Recipe import recipes
 from Recipe import Recipe
+
 class MainLoop:
     global devices
+    global recipes
     tickCounter=0
     tick = 1
     threads = []
@@ -43,7 +46,7 @@ class MainLoop:
                 break
             tokens = line.split(";")
             if tokens[1].lower() == "nozzle":
-                devices[tokens[0]] = Recipe(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","), tokens[3].replace("\n",""), tokens[4].replace("\n","")) 
+                recipes[tokens[0]] = Recipe(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","), tokens[3].replace("\n",""), tokens[4].replace("\n","")) 
         fh.close()
 
     def run(self):

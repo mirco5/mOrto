@@ -3,7 +3,6 @@ from gpiozero import LED
 import json
 import time
 import sys
-import MainLoop
 import Singleton
 from enum import Enum
 import threading
@@ -16,6 +15,8 @@ def threaded(fn):
         thread.start()
         return thread
     return wrapper
+
+devices = dict()
 
 @six.add_metaclass(abc.ABCMeta)
 class Device():

@@ -1,7 +1,7 @@
 from threading import Thread
 import time
 from FlaskServer import run
-from FlaskServer import devices
+from Device import devices
 from MainLoop import MainLoop
 
 if __name__ == '__main__':
