@@ -8,6 +8,7 @@ class MainLoop:
     global devices
     tickCounter=0
     tick = 1
+    threads = []
 
     def __init__(self, tick):
         self.tick = tick
@@ -24,11 +25,11 @@ class MainLoop:
             if tokens[1].lower() == "nozzle":
                 devices[tokens[0]] = Nozzle(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
             elif tokens[1].lower() == "ultrasonic":
-                devices[tokens[0]] = Ultrasonic(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
-
+                devices[tokens[0]] = Ultrasonic(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
         fh.close()
         for x in devices:
             devices[x].init()
+            devices[x].status=3
         print("Init Finished")
 
     def run(self):
@@ -42,10 +43,17 @@ class MainLoop:
             for x in devices:
                 if devices[x].requestedStatus != 0 :
                     if devices[x].requestedStatus==2 :
+                        devices[x].status=2
                         devices[x].run()
                     if devices[x].requestedStatus==3 :
-                        devices[x].stop()
+                        if devices[x].status==2:
+                            devices[x].status=3
+                            devices[x].stop()
+                        if devices[x].status==4:
+                            devices[x].status=3
+                            devices[x].carryOnTime=0
                     if devices[x].requestedStatus==4 :
+                        devices[x].status=4
                         devices[x].carryOn()
                     devices[x].requestedStatus = 0
 

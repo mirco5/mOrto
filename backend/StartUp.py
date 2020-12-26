@@ -9,10 +9,10 @@ if __name__ == '__main__':
     mnlp = MainLoop(1)
     mnlp.init()
     
-    p1 = Thread(target = mnlp.run)
+    p1 = Thread(name = "MainLoop" ,target = mnlp.run)
     p1.start()
 
-    p2 = Thread(target = run)
+    p2 = Thread(name = "RestAPI", target = run)
     p2.start()
 
     p1.join()

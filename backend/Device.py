@@ -6,6 +6,15 @@ import sys
 import MainLoop
 import Singleton
 from enum import Enum
+import threading
+from abc import ABCMeta, abstractmethod
+
+def threaded(fn):
+    def wrapper(*args, **kwargs):
+        thread = threading.Thread(name=fn, target=fn, args=args, kwargs=kwargs)
+        thread.start()
+        return thread
+    return wrapper
 
 class Device(metaclass=abc.ABCMeta):
     status = 0
@@ -33,20 +42,27 @@ class Device(metaclass=abc.ABCMeta):
     @property
     def pins(self):
         return self.__pins
+    @property    
+    @abstractmethod
     def init(self):
-        status = 1
-    def run(self):  
-        status = 2
-    def stop(self):      
-        status = 3
+        pass
+    @property    
+    @abstractmethod
+    def run(self):
+        pass
+    @property    
+    @abstractmethod
+    def stop(self):
+        pass
+    @threaded
     def carryOn(self):
-        status = 4
+        self.status = 4
         startTime = time.time()
         currentTick = self.carryOnTick
         if currentTick==None or currentTick == 0:
             currentTick = Singleton.Singleton.getInstance().SysTick
         time.time()
-        while (time.time() - startTime) < self.carryOnTime:
+        while self.carryOnTime != 0 and (time.time() - startTime) < self.carryOnTime:
             endTime = time.time()
             self.run()
             endTime = endTime - time.time()
@@ -54,41 +70,43 @@ class Device(metaclass=abc.ABCMeta):
             if sleepTime > 0:
                 time.sleep(sleepTime)
         self.stop()
+    @property    
+    @abstractmethod
     def exit(self):      
-        "Function that exit the sensor"
+        pass
 
 @Device.register
 class Nozzle(Device):
     @property
     def obit(self):
         return self.__obit
+    @threaded
     def init(self):
-        super().init()
         self.__obit = LED(int(self.pins[0]))
         print("Init Finished:" + self.name)
+    @threaded
     def run(self):
-        super().run()
         self.__obit.on()
+    @threaded
     def stop(self):
-        super().stop()
         self.__obit.off()
         print("Stop Finished:" + self.name)
+    @threaded
     def exit(self):
-        super().exit()
         self.__obit.close()
         print("Exit Finished:" + self.name)
 
 @Device.register
 class Ultrasonic(Device):
+    @threaded
     def init(self):
-        super().init()
         print("Init Finished:" + self.name)
+    @threaded
     def run(self):
-        super().run()
         print("Run:" + self.name)
+    @threaded
     def stop(self):
-        super().stop()
         print("Stop Finished:" + self.name)
+    @threaded
     def exit(self):
-        super.exit()
         print("Exit Finished:" + self.name)    
