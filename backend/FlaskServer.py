@@ -67,7 +67,17 @@ class device_adddevice(Resource):
             devices[devicekey] = HumidityMeter(devicekey, typ, pins.split("-"))
         elif typ.lower() == "terrainhumiditymeter":
             devices[devicekey] = TerrainHumidityMeter(devicekey, typ, pins.split("-"))
-        #TODO:Save current view
+        
+        current=[]
+        for x in devices:
+            actualDevice = DeviceDTO(devices[x].name, devices[x].requestedStatus, devices[x].status, devices[x].typ, devices[x].pins)
+            current.append(actualDevice.__dict__)
+        jsonToSave=json.dumps(current, indent=4, sort_keys=True)
+        
+        text_file = open("Devices.json", "w")
+        text_file.write(jsonToSave)
+        text_file.close()
+
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 @devicesns.route('/<devicekey>/status/run')
@@ -99,8 +109,7 @@ class recipe_list(Resource):
         global recipes
         recipesToReturn=[]
         for x in recipes:
-            current = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration)
-            recipesToReturn.append(current.name)
+            recipesToReturn.append(recipes[x].name)
         exitval = json.dumps(recipesToReturn)
         return exitval, 200, {'ContentType':'application/json'} 
 
@@ -122,5 +131,14 @@ class recipe_create(Resource):
     def post(self,recipekey,description,devices,frequency,duration):
         global recipes
         recipes[recipekey] = Recipe(recipekey,description,devices.split("-"),frequency,duration) 
-        #TODO:Save current view
+        current=[]
+        for x in recipes:
+            actualRecipe = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration)
+            current.append(actualRecipe.__dict__)
+        jsonToSave=json.dumps(current, indent=4, sort_keys=True)
+        
+        text_file = open("Recipes.json", "w")
+        text_file.write(jsonToSave)
+        text_file.close()
+        
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
