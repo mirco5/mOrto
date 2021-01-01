@@ -3,6 +3,17 @@ import time
 from Device import devices
 recipes = dict()
 
+class RecipeDTO():
+    def __init__(self, name, description, recipeDevicesString, frequency, duration):
+        global devices
+        self.name = name
+        self.description = description
+        self.recipeDevices = dict()
+        for x in recipeDevicesString:
+           self.recipeDevices[x] = recipeDevicesString[x].name
+        self.frequency = int(frequency)
+        self.duration = int(duration)    
+
 class Recipe():
     __checks=[]
     def __init__(self, name, description, recipeDevicesString, frequency, duration):

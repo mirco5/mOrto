@@ -3,8 +3,7 @@ from flask import Flask, jsonify
 from flask_restplus import Api, Resource
 from gpiozero import CPUTemperature
 import json
-from Recipe import Recipe
-from Recipe import recipes
+from Recipe import Recipe, RecipeDTO, recipes
 from Device import devices
 from Device import DeviceDTO
 from Device import MeterDevice
@@ -35,7 +34,7 @@ class device_list(Resource):
             current = DeviceDTO(devices[x].name, devices[x].requestedStatus, devices[x].status, devices[x].typ, devices[x].pins)
             if issubclass(devices[x].__class__, MeterDevice) :
                 current.value = devices[x].value
-            devicesToReturn.append(current.__dict__)
+            devicesToReturn.append(current.name)
         exitval = json.dumps(devicesToReturn)
         return exitval, 200, {'ContentType':'application/json'} 
 
@@ -54,21 +53,21 @@ class device_devicekey(Resource):
         del devices[devicekey]
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
-@devicesns.route('/<devicekey>/<name>/<type>/<pins>')
+@devicesns.route('/<devicekey>/<typ>/<pins>')
 class device_adddevice(Resource):
-    def post(self,devicekey,name,typ,pins):
+    def post(self,devicekey,typ,pins):
         global devices
         if typ.lower() == "nozzle":
-            devices[name] = Nozzle(name, typ, pins.split("-"))  
+            devices[devicekey] = Nozzle(devicekey, typ, pins.split("-"))  
         elif typ.lower() == "ultrasonic":
-            devices[name] = Ultrasonic(name, typ, pins.split("-"))
+            devices[devicekey] = Ultrasonic(devicekey, typ, pins.split("-"))
         elif typ.lower() == "termometer":
-            devices[name] = TermoMeter(name, typ, pins.split("-"))
+            devices[devicekey] = TermoMeter(devicekey, typ, pins.split("-"))
         elif typ.lower() == "humiditymeter":
-            devices[name] = HumidityMeter(name, typ, pins.split("-"))
+            devices[devicekey] = HumidityMeter(devicekey, typ, pins.split("-"))
         elif typ.lower() == "terrainhumiditymeter":
-            devices[name] = TerrainHumidityMeter(name, typ, pins.split("-"))
-        #Save actual config
+            devices[devicekey] = TerrainHumidityMeter(devicekey, typ, pins.split("-"))
+        #TODO:Save current view
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
 @devicesns.route('/<devicekey>/status/run')
@@ -100,16 +99,18 @@ class recipe_list(Resource):
         global recipes
         recipesToReturn=[]
         for x in recipes:
-            recipesToReturn.append(recipes[x].__dict__)
+            current = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration)
+            recipesToReturn.append(current.name)
         exitval = json.dumps(recipesToReturn)
-        return exitval, 200, {'ContentType':'application/json'}
+        return exitval, 200, {'ContentType':'application/json'} 
 
 @recipesns.route('/<recipekey>')
 class recipe_key(Resource):
     def get(self,recipekey):
         global recipes
-        exitval = json.dumps(recipes[recipekey].__dict__)
-        return exitval, 200, {'ContentType':'application/json'}
+        current = RecipeDTO(recipes[recipekey].name, recipes[recipekey].description, recipes[recipekey].recipeDevices, recipes[recipekey].frequency, recipes[recipekey].duration)
+        exitval = json.dumps(current.__dict__)
+        return exitval, 200, {'ContentType':'application/json'} 
     def delete(self,recipekey):
         global recipes
         del recipes[recipekey]
@@ -121,4 +122,5 @@ class recipe_create(Resource):
     def post(self,recipekey,description,devices,frequency,duration):
         global recipes
         recipes[recipekey] = Recipe(recipekey,description,devices.split("-"),frequency,duration) 
+        #TODO:Save current view
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
