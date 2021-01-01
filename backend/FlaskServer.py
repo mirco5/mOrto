@@ -1,12 +1,14 @@
 import os
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restplus import Api, Resource
-# from flask_swagger_ui import get_swaggerui_blueprint
 from gpiozero import CPUTemperature
 import json
 from Recipe import Recipe
 from Recipe import recipes
 from Device import devices
+from Device import DeviceDTO
+from Device import MeterDevice
+
 
 flask_app = Flask(__name__)
 app = Api(app = flask_app)
@@ -21,13 +23,30 @@ def run():
 class temperature(Resource):
     def get(self):
         cpu = CPUTemperature()
-        return str(cpu.temperature)
+        return json.dumps(cpu.temperature), 200, {'ContentType':'application/json'} 
+
+@devicesns.route('/')
+class device_list(Resource):
+    def get(self):
+        global devices
+        devicesToReturn=[]
+        for x in devices:
+            current = DeviceDTO(devices[x].name, devices[x].requestedStatus, devices[x].status, devices[x].typ, devices[x].pins)
+            if issubclass(devices[x].__class__, MeterDevice) :
+                current.value = devices[x].value
+            devicesToReturn.append(current.__dict__)
+        exitval = json.dumps(devicesToReturn)
+        return exitval, 200, {'ContentType':'application/json'} 
 
 @devicesns.route('/<devicekey>')
-class device(Resource):
+class device_devicekey(Resource):
     def get(self,devicekey):
         global devices
-        return json.dumps(devices[devicekey].__dict__)
+        current = DeviceDTO(devices[devicekey].name, devices[devicekey].requestedStatus, devices[devicekey].status, devices[devicekey].typ, devices[devicekey].pins)
+        if issubclass(devices[devicekey].__class__, MeterDevice) :
+            current.value = devices[devicekey].value
+        exitval = json.dumps(current.__dict__)
+        return exitval, 200, {'ContentType':'application/json'} 
 
 @devicesns.route('/<devicekey>/run')
 class device_run(Resource):
@@ -52,14 +71,25 @@ class device_carryOn(Resource):
         devices[devicekey].carryOnTick = float(tick)
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
 
+@recipesns.route('/')
+class recipe_list(Resource):
+    def get(self):
+        global devices
+        recipesToReturn=[]
+        for x in recipes:
+            recipesToReturn.append(recipes[x].__dict__)
+        exitval = json.dumps(recipesToReturn)
+        return exitval, 200, {'ContentType':'application/json'}
+
 @recipesns.route('/<recipekey>')
-class recipe(Resource):
+class recipe_key(Resource):
     def get(self,recipekey):
         global devices
-        return json.dumps(devices[recipekey].__dict__)
+        exitval = json.dumps(recipes[recipekey].__dict__)
+        return exitval, 200, {'ContentType':'application/json'}
 
 @recipesns.route('/<recipekey>/<description>/<devices>/<frequency>/<duration>')
 class recipe_create(Resource):
     def post(self,recipekey,description,devices,frequency,duration):
         recipes[recipekey] = Recipe(recipekey,description,devices,frequency,duration) 
-        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'}

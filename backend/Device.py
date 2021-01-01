@@ -18,6 +18,15 @@ def threaded(fn):
 
 devices = dict()
 
+class DeviceDTO():
+    def __init__(self, name, requestedStatus, status, typ, pins):
+        self.name = name
+        self.requestedStatus = requestedStatus
+        self.status = status
+        self.typ = typ
+        self.pins = pins
+        self.value=0
+
 @six.add_metaclass(abc.ABCMeta)
 class Device():
     status = 0
@@ -74,6 +83,7 @@ class Device():
 
 @Device.register
 class MeterDevice(Device):
+    __value=0
     @property
     def value(self):
         return self.__value
@@ -160,4 +170,5 @@ class TerrainHumidityMeter(MeterDevice):
         print("Stop Finished:" + self.name)
     @threaded
     def exit(self):
-        print("Exit Finished:" + self.name)    
+        print("Exit Finished:" + self.name)
+  
