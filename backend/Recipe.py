@@ -5,15 +5,15 @@ recipes = dict()
 
 class Recipe():
     __checks=[]
-    def __init__(self, name, description, recipeDevices, frequency, duration):
+    def __init__(self, name, description, recipeDevicesString, frequency, duration):
         global devices
         self.__name = name
         self.__description = description
         self.__recipeDevices = dict()
-        for x in recipeDevices:
+        for x in recipeDevicesString:
            self.__recipeDevices[x] = devices[x]
-        self.__frequency = frequency
-        self.__duration = duration
+        self.__frequency = int(frequency)
+        self.__duration = int(duration)
 
     @property
     def status(self):

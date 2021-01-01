@@ -25,7 +25,7 @@ class DeviceDTO():
         self.status = status
         self.typ = typ
         self.pins = pins
-        self.value=0
+        self.value = 0
 
 @six.add_metaclass(abc.ABCMeta)
 class Device():
