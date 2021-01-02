@@ -1,0 +1,82 @@
+[
+    {
+        "name": "nozzle1",
+        "pins": [
+            "26"
+        ],
+        "requestedStatus": 0,
+        "status": 3,
+        "typ": "nozzle",
+        "value": 0
+    },
+    {
+        "name": "nozzle2",
+        "pins": [
+            "19"
+        ],
+        "requestedStatus": 0,
+        "status": 3,
+        "typ": "nozzle",
+        "value": 0
+    },
+    {
+        "name": "nozzle3",
+        "pins": [
+            "13"
+        ],
+        "requestedStatus": 0,
+        "status": 3,
+        "typ": "nozzle",
+        "value": 0
+    },
+    {
+        "name": "nozzle4",
+        "pins": [
+            "6"
+        ],
+        "requestedStatus": 0,
+        "status": 3,
+        "typ": "nozzle",
+        "value": 0
+    },
+    {
+        "name": "termometerin",
+        "pins": [
+            "8"
+        ],
+        "requestedStatus": 0,
+        "status": 3,
+        "typ": "termometer",
+        "value": 0
+    },
+    {
+        "name": "humiditymeterin",
+        "pins": [
+            "8"
+        ],
+        "requestedStatus": 0,
+        "status": 3,
+        "typ": "humiditymeter",
+        "value": 0
+    },
+    {
+        "name": "terrainhumiditymeterin",
+        "pins": [
+            "8"
+        ],
+        "requestedStatus": 0,
+        "status": 3,
+        "typ": "terrainhumiditymeter",
+        "value": 0
+    },
+    {
+        "name": "ultrasonic",
+        "pins": [
+            "8"
+        ],
+        "requestedStatus": 0,
+        "status": 3,
+        "typ": "ultrasonic",
+        "value": 0
+    }
+]

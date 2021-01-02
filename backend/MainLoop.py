@@ -5,6 +5,7 @@ from Singleton import Singleton
 from Device import devices
 from Recipe import recipes
 from Recipe import Recipe
+import json
 
 class MainLoop:
     global devices
@@ -17,37 +18,35 @@ class MainLoop:
         self.tick = tick
      
     def init(self):
-        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        fh = open(os.path.join(__location__, "./configFiles/sensorList.csv"), "r")
-        while True:
-            line = fh.readline()
-            if not line:
-                break
-            tokens = line.split(";")
-            if tokens[1].lower() == "nozzle":
-                devices[tokens[0]] = Nozzle(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))  
-            elif tokens[1].lower() == "ultrasonic":
-                devices[tokens[0]] = Ultrasonic(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
-            elif tokens[1].lower() == "termometer":
-                devices[tokens[0]] = TermoMeter(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
-            elif tokens[1].lower() == "humiditymeter":
-                devices[tokens[0]] = HumidityMeter(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
-            elif tokens[1].lower() == "terrainhumiditymeter":
-                devices[tokens[0]] = TerrainHumidityMeter(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","))
+        fh = open("Devices.json", "r")
+        devicesLoaded = json.load(fh) 
         fh.close()
+
+        for val in devicesLoaded:
+            if val['typ'] == "nozzle":
+                devices[val['name']] = Nozzle(val['name'],val['typ'], val['pins'])  
+            elif val['typ'] == "ultrasonic":
+                devices[val['name']] = Ultrasonic(val['name'],val['typ'], val['pins']) 
+            elif val['typ'] == "termometer":
+                devices[val['name']] = TermoMeter(val['name'],val['typ'], val['pins']) 
+            elif val['typ'] == "humiditymeter":
+                devices[val['name']] = HumidityMeter(val['name'],val['typ'], val['pins']) 
+            elif val['typ'] == "terrainhumiditymeter":
+                devices[val['name']] = TerrainHumidityMeter(val['name'],val['typ'], val['pins']) 
+        
         for x in devices:
             devices[x].init()
             devices[x].status=3
         
-        fh = open(os.path.join(__location__, "./configFiles/recipesList.csv"), "r")
-        while True:
-            line = fh.readline()
-            if not line:
-                break
-            tokens = line.split(";")
-            if tokens[1].lower() == "nozzle":
-                recipes[tokens[0]] = Recipe(tokens[0],tokens[1].replace("\n",""), tokens[2].replace("\n","").split(","), tokens[3].replace("\n",""), tokens[4].replace("\n","")) 
+        fh = open("Recipes.json", "r")
+        recipesLoaded = json.load(fh) 
         fh.close()
+
+        for val in recipesLoaded:
+            connectedDevices = []
+            for x in  val['recipeDevices']:
+                connectedDevices.append(x)
+            recipes[val['name']] = Recipe(val['name'], val['description'], connectedDevices, val['frequency'], val['duration'])  
 
     def run(self):
         print("Main Loop Started")
