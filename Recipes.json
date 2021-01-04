@@ -1,20 +1,21 @@
 [
     {
-        "description": "gino and mar",
-        "duration": 1,
-        "frequency": 50,
-        "name": "provaprov",
+        "checks": {
+            "gattamatto": {
+                "operator": "<",
+                "tp": "Threshould",
+                "value": "65",
+                "valueToTest": "devices['termometerin'].value"
+            }
+        },
+        "description": "prova prova",
+        "duration": 4,
+        "frequency": 15,
+        "name": "prova",
         "recipeDevices": {
-            "nozzle1": "nozzle1"
-        }
-    },
-    {
-        "description": "gino gin",
-        "duration": 1,
-        "frequency": 50,
-        "name": "provagin",
-        "recipeDevices": {
-            "nozzle2": "nozzle2"
+            "nozzle1": "nozzle1",
+            "nozzle2": "nozzle2",
+            "termometerin": "termometerin"
         }
     }
 ]

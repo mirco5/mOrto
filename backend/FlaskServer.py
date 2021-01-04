@@ -8,7 +8,7 @@ from Device import devices
 from Device import DeviceDTO
 from Device import MeterDevice
 from Device import Device, Nozzle, Ultrasonic, TermoMeter, HumidityMeter, TerrainHumidityMeter
-
+from Check import Threshould
 
 flask_app = Flask(__name__)
 app = Api(app = flask_app)
@@ -117,8 +117,8 @@ class recipe_list(Resource):
 class recipe_key(Resource):
     def get(self,recipekey):
         global recipes
-        current = RecipeDTO(recipes[recipekey].name, recipes[recipekey].description, recipes[recipekey].recipeDevices, recipes[recipekey].frequency, recipes[recipekey].duration)
-        exitval = json.dumps(current.__dict__)
+        current = RecipeDTO(recipes[recipekey].name, recipes[recipekey].description, recipes[recipekey].recipeDevices, recipes[recipekey].frequency, recipes[recipekey].duration, recipes[recipekey].checks)
+        exitval = json.dumps(current.__dict__, default=lambda o: getattr(o, '__dict__', str(o)))
         return exitval, 200, {'ContentType':'application/json'} 
     def delete(self,recipekey):
         global recipes
@@ -130,10 +130,10 @@ class recipe_key(Resource):
 class recipe_create(Resource):
     def post(self,recipekey,description,devices,frequency,duration):
         global recipes
-        recipes[recipekey] = Recipe(recipekey,description,devices.split("-"),frequency,duration) 
+        recipes[recipekey] = Recipe(recipekey,description,devices.split("-"),frequency,duration, dict()) 
         current=[]
         for x in recipes:
-            actualRecipe = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration)
+            actualRecipe = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration, recipes[x].checks)
             current.append(actualRecipe.__dict__)
         jsonToSave=json.dumps(current, indent=4, sort_keys=True)
         
@@ -142,3 +142,35 @@ class recipe_create(Resource):
         text_file.close()
         
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+@recipesns.route('/treshould/<recipekey>/<checkkey>/<devicekey>/<check>/<treshouldvalue>')
+class recipe_treshould_create(Resource):
+    def post(self,recipekey,checkkey,devicekey,check,treshouldvalue):
+        global recipes
+        global devices
+        if issubclass(devices[devicekey].__class__, MeterDevice) :
+            recipes[recipekey].checks[checkkey] = Threshould("devices['"+devicekey+"'].value",check,treshouldvalue)        
+        
+        current=[]
+        for x in recipes:
+            actualRecipe = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration, recipes[x].checks)
+            current.append(actualRecipe.__dict__)
+        jsonToSave=json.dumps(current, default=lambda o: getattr(o, '__dict__', str(o)), indent=4, sort_keys=True) 
+        text_file = open("Recipes.json", "w")
+        text_file.write(jsonToSave)
+        text_file.close()
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+@recipesns.route('/<recipekey>/active')
+class recipe_active(Resource):
+    def get(self,recipekey):
+        global recipes
+        recipes[recipekey].active()
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+
+@recipesns.route('/<recipekey>/deactive')
+class recipe_deactive(Resource):
+    def get(self,recipekey):
+        global recipes
+        recipes[recipekey].deactive()
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 

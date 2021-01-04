@@ -6,6 +6,8 @@ from Device import devices
 from Recipe import recipes
 from Recipe import Recipe
 import json
+from types import SimpleNamespace
+from Check import Threshould
 
 class MainLoop:
     global devices
@@ -46,7 +48,12 @@ class MainLoop:
             connectedDevices = []
             for x in  val['recipeDevices']:
                 connectedDevices.append(x)
-            recipes[val['name']] = Recipe(val['name'], val['description'], connectedDevices, val['frequency'], val['duration'])  
+            checks = dict()
+            for x,y in val['checks'].items():
+                if y['tp'] == "Threshould" :
+                    checks[x] = Threshould(y['valueToTest'],y['operator'],y['value'])
+
+            recipes[val['name']] = Recipe(val['name'], val['description'], connectedDevices, val['frequency'], val['duration'], checks)  
 
     def run(self):
         print("Main Loop Started")
@@ -72,6 +79,9 @@ class MainLoop:
                         devices[x].status=4
                         devices[x].carryOn()
                     devices[x].requestedStatus = 0
+
+            for x in recipes:
+                recipes[x].run()
 
             # Start Compute Time
             endTime = time.time()
