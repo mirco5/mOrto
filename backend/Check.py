@@ -27,8 +27,8 @@ class Threshould(Check):
         self.value = value
         self.tp = "Threshould"
 
-    @property
     def run(self):
         global devices
         coreCode = str(self.valueToTest) + str(self.operator) + str(self.value)
-        return exec(coreCode, devices)
+        evaluation = eval(coreCode, {'devices':devices})
+        return evaluation

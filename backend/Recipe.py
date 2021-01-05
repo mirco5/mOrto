@@ -84,7 +84,8 @@ class Recipe():
     def checkPreconditions(self):
         checks = 0
         for x in self.__checks:
-            if not self.__checks[x].run():
+            checkResult = self.__checks[x].run()
+            if not checkResult:
                 checks = 1
         
 
