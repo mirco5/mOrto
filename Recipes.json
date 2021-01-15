@@ -6,11 +6,15 @@
                 "tp": "Threshould",
                 "value": "65",
                 "valueToTest": "devices['termometerin'].value"
+            },
+            "onceaday": {
+                "recipeName": "prova",
+                "tp": "OnceADay"
             }
         },
         "description": "prova prova",
-        "duration": 4,
-        "frequency": 15,
+        "duration": 8,
+        "frequency": 20,
         "name": "prova",
         "recipeDevices": {
             "nozzle1": "nozzle1",

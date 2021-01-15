@@ -7,7 +7,7 @@ from Recipe import recipes
 from Recipe import Recipe
 import json
 from types import SimpleNamespace
-from Check import Threshould
+from Check import Threshould, OnceADay
 
 class MainLoop:
     global devices
@@ -52,6 +52,8 @@ class MainLoop:
             for x,y in val['checks'].items():
                 if y['tp'] == "Threshould" :
                     checks[x] = Threshould(y['valueToTest'],y['operator'],y['value'])
+                elif y['tp'] == "OnceADay" :
+                    checks[x] = OnceADay(y['recipeName'])
 
             recipes[val['name']] = Recipe(val['name'], val['description'], connectedDevices, val['frequency'], val['duration'], checks)  
 

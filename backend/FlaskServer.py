@@ -8,7 +8,7 @@ from Device import devices
 from Device import DeviceDTO
 from Device import MeterDevice
 from Device import Device, Nozzle, Ultrasonic, TermoMeter, HumidityMeter, TerrainHumidityMeter
-from Check import Threshould
+from Check import Threshould, OnceADay
 
 flask_app = Flask(__name__)
 app = Api(app = flask_app)
@@ -125,25 +125,25 @@ class recipe_key(Resource):
         del recipes[recipekey]
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
+def updateRecipePersistance():
+    current=[]
+    for x in recipes:
+        actualRecipe = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration, recipes[x].checks)
+        current.append(actualRecipe.__dict__)
+    jsonToSave=json.dumps(current, default=lambda o: getattr(o, '__dict__', str(o)), indent=4, sort_keys=True) 
+    text_file = open("Recipes.json", "w")
+    text_file.write(jsonToSave)
+    text_file.close()
 
 @recipesns.route('/<recipekey>/<description>/<devices>/<frequency>/<duration>')
 class recipe_create(Resource):
     def post(self,recipekey,description,devices,frequency,duration):
         global recipes
         recipes[recipekey] = Recipe(recipekey,description,devices.split("-"),frequency,duration, dict()) 
-        current=[]
-        for x in recipes:
-            actualRecipe = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration, recipes[x].checks)
-            current.append(actualRecipe.__dict__)
-        jsonToSave=json.dumps(current, indent=4, sort_keys=True)
-        
-        text_file = open("Recipes.json", "w")
-        text_file.write(jsonToSave)
-        text_file.close()
-        
+        updateRecipePersistance()   
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
-@recipesns.route('/treshould/<recipekey>/<checkkey>/<devicekey>/<check>/<treshouldvalue>')
+@recipesns.route('/checks/treshould/<recipekey>/<checkkey>/<devicekey>/<check>/<treshouldvalue>')
 class recipe_treshould_create(Resource):
     def post(self,recipekey,checkkey,devicekey,check,treshouldvalue):
         global recipes
@@ -151,14 +151,16 @@ class recipe_treshould_create(Resource):
         if issubclass(devices[devicekey].__class__, MeterDevice) :
             recipes[recipekey].checks[checkkey] = Threshould("devices['"+devicekey+"'].value",check,treshouldvalue)        
         
-        current=[]
-        for x in recipes:
-            actualRecipe = RecipeDTO(recipes[x].name, recipes[x].description, recipes[x].recipeDevices, recipes[x].frequency, recipes[x].duration, recipes[x].checks)
-            current.append(actualRecipe.__dict__)
-        jsonToSave=json.dumps(current, default=lambda o: getattr(o, '__dict__', str(o)), indent=4, sort_keys=True) 
-        text_file = open("Recipes.json", "w")
-        text_file.write(jsonToSave)
-        text_file.close()
+        updateRecipePersistance()
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+@recipesns.route('/checks/onceaday/<recipekey>')
+class recipe_onceaday_create(Resource):
+    def post(self,recipekey):
+        global recipes
+        global devices
+        recipes[recipekey].checks['onceaday'] = OnceADay(recipekey)        
+        updateRecipePersistance()
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
 @recipesns.route('/<recipekey>/active')

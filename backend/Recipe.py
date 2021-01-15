@@ -39,13 +39,21 @@ class Recipe():
         self.__frequencyCounter = -1
         self.__durationCounter = -1
         self.__irrigateState = 1
-   
+        self.__lastExec = -1
+        self.__lastExecFinishTime=-1
+
     @property
     def status(self):
         return self.__status
     @status.setter
     def status(self, status):
         self.__status=status
+    @property
+    def lastExecFinishTime(self):
+        return self.__lastExecFinishTime
+    @lastExecFinishTime.setter
+    def lastExecFinishTime(self, lastExecFinishTime):
+        self.__lastExecFinishTime=lastExecFinishTime
     @property
     def name(self):
         return self.__name
@@ -97,6 +105,7 @@ class Recipe():
                 self.__irrigateState = 0
                 self.__frequencyCounter = -1
                 self.__durationCounter = -1
+                self.__lastExec =  time.time()
         
         if self.__irrigateState == 0 :
             if self.__durationCounter == -1:
@@ -106,6 +115,7 @@ class Recipe():
                 if currentDeltaDurationTime > self.__duration :
                     self.__irrigateState = 1
                     self.__durationCounter = -1
+                    self.__lastExecFinishTime=time.time()
 
         if checks == 0 and self.__irrigateState == 0:
             return 0
