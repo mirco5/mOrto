@@ -8,7 +8,8 @@ from Device import devices
 from Device import DeviceDTO
 from Device import MeterDevice
 from Device import Device, Nozzle, Ultrasonic, TermoMeter, HumidityMeter, TerrainHumidityMeter
-from Check import Threshould, OnceADay
+from Check import Threshould, EmergencyThreshould, OnceADay, ActivationTime, NoActivationPeriod
+from datetime import date, time, datetime
 
 flask_app = Flask(__name__)
 app = Api(app = flask_app)
@@ -154,12 +155,45 @@ class recipe_treshould_create(Resource):
         updateRecipePersistance()
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
+@recipesns.route('/checks/emergencytreshould/<recipekey>/<checkkey>/<devicekey>/<check>/<treshouldvalue>')
+class recipe_emergencytreshould_create(Resource):
+    def post(self,recipekey,checkkey,devicekey,check,treshouldvalue):
+        global recipes
+        global devices
+        if issubclass(devices[devicekey].__class__, MeterDevice) :
+            recipes[recipekey].checks[checkkey] = EmergencyThreshould("devices['"+devicekey+"'].value",check,treshouldvalue)        
+        
+        updateRecipePersistance()
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
 @recipesns.route('/checks/onceaday/<recipekey>')
 class recipe_onceaday_create(Resource):
     def post(self,recipekey):
         global recipes
         global devices
         recipes[recipekey].checks['onceaday'] = OnceADay(recipekey)        
+        updateRecipePersistance()
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+
+@recipesns.route('/checks/activationtime/<recipekey>/<hours>/<minutes>/<deltasec>')
+class recipe_activationtime_create(Resource):
+    def post(self,recipekey, hours, minutes, deltasec):
+        global recipes
+        global devices
+        currentTime = time(hour=int(hours), minute=int(minutes), second=0)
+        recipes[recipekey].checks['activationtime'] = ActivationTime(currentTime, deltasec)        
+        updateRecipePersistance()
+        return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+@recipesns.route('/checks/noactivationperiod/<recipekey>/<starthours>/<startmin>/<stophours>/<stopmin>/')
+class recipe_noactivationperiod_create(Resource):
+    def post(self,recipekey, starthours, startmin, stophours, stopmin):
+        global recipes
+        global devices
+        currentStartTime = time(hour=int(starthours), minute=int(stophours), second=0)
+        currentStopTime = time(hour=int(stophours), minute=int(stopmin), second=0)
+        recipes[recipekey].checks['noactivationperiod'] = NoActivationPeriod(currentStartTime, currentStopTime)        
         updateRecipePersistance()
         return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 

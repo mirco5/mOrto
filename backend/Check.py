@@ -36,6 +36,20 @@ class Threshould(Check):
         return evaluation
 
 @Check.register
+class EmergencyThreshould(Check):
+    def __init__(self, valueToTest, operator, value): 
+        self.valueToTest = valueToTest
+        self.operator = operator
+        self.value = value
+        self.tp = "EmergencyThreshould"
+
+    def run(self):
+        global devices
+        coreCode = str(self.valueToTest) + str(self.operator) + str(self.value)
+        evaluation = eval(coreCode, {'devices':devices})
+        return evaluation
+
+@Check.register
 class OnceADay(Check):
     def __init__(self, recipeName): 
         self.tp = "OnceADay"
@@ -64,21 +78,10 @@ class ActivationTime(Check):
 @Check.register
 class NoActivationPeriod(Check):
     def __init__(self, startTime, stopTime): 
-        self.tp = "ActivationTime"
+        self.tp = "NoActivationPeriod"
         self.startTime = startTime
         self.stopTime = stopTime
 
     def run(self):
         currentTime = time.time()
         return currentTime < self.startTime and currentTime > self.stopTime
-
-@Check.register
-class EmergencyActivation(Check):
-    def __init__(self, time, maxDelta): 
-        self.tp = "ActivationTime"
-        self.time = time
-        self.maxDelta = maxDelta
-
-    def run(self):
-        currentTime = time.time()
-        return currentTime > self.time and (currentTime < (self.time + self.maxDelta))

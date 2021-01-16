@@ -1,15 +1,31 @@
 [
     {
         "checks": {
+            "activationtime": {
+                "maxDelta": "52",
+                "time": "12:42:00",
+                "tp": "ActivationTime"
+            },
             "gattamatto": {
                 "operator": "<",
                 "tp": "Threshould",
                 "value": "65",
                 "valueToTest": "devices['termometerin'].value"
             },
+            "noactivationperiod": {
+                "startTime": "14:09:00",
+                "stopTime": "09:30:00",
+                "tp": "NoActivationPeriod"
+            },
             "onceaday": {
                 "recipeName": "prova",
                 "tp": "OnceADay"
+            },
+            "threshould": {
+                "operator": "<",
+                "tp": "EmergencyThreshould",
+                "value": "45",
+                "valueToTest": "devices['termometerin'].value"
             }
         },
         "description": "prova prova",
