@@ -87,7 +87,11 @@ class Recipe():
     def active(self):
         self.__status = 1
     def deactive(self):
-        self.__status = 0
+        if self.__status == 2:
+            self.disableNozzles()
+            self.__status = 0
+        elif self.__status == 3:
+            self.__status = 0
 
     def checkPreconditions(self):
         checks = 0
