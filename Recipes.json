@@ -2,8 +2,9 @@
     {
         "checks": {
             "activationtime": {
+                "hours": "6",
                 "maxDelta": "52",
-                "time": "12:42:00",
+                "minutes": "32",
                 "tp": "ActivationTime"
             },
             "gattamatto": {
@@ -13,8 +14,10 @@
                 "valueToTest": "devices['termometerin'].value"
             },
             "noactivationperiod": {
-                "startTime": "14:09:00",
-                "stopTime": "09:30:00",
+                "starthours": "5",
+                "startmin": "7",
+                "stophours": "23",
+                "stopmin": "32",
                 "tp": "NoActivationPeriod"
             },
             "onceaday": {
@@ -22,7 +25,7 @@
                 "tp": "OnceADay"
             },
             "threshould": {
-                "operator": "<",
+                "operator": ">",
                 "tp": "EmergencyThreshould",
                 "value": "45",
                 "valueToTest": "devices['termometerin'].value"

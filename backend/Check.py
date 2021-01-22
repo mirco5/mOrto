@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 import six
 from Device import devices
 from Recipe import recipes
-import datetime
+import time
 
 @six.add_metaclass(abc.ABCMeta)
 class Check():
@@ -66,22 +66,31 @@ class OnceADay(Check):
 
 @Check.register
 class ActivationTime(Check):
-    def __init__(self, time, maxDelta): 
+    def __init__(self, hours, minutes, maxDelta): 
         self.tp = "ActivationTime"
-        self.time = time
+        self.hours = hours
+        self.minutes = minutes
         self.maxDelta = maxDelta
 
     def run(self):
         currentTime = time.time()
-        return currentTime > self.time and (currentTime < (self.time + self.maxDelta))
+        targetTime = time.time()
+        targetTime = targetTime + int(self.hours) * (60*60) + int(self.minutes) * 60
+        maxTime = targetTime + int(self.maxDelta)
+        return currentTime > targetTime and currentTime < maxTime
 
 @Check.register
 class NoActivationPeriod(Check):
-    def __init__(self, startTime, stopTime): 
+    def __init__(self, startHours, stopHours, startMin, stopMin): 
         self.tp = "NoActivationPeriod"
-        self.startTime = startTime
-        self.stopTime = stopTime
+        self.starthours = startHours
+        self.stophours = stopHours
+        self.startmin = startMin
+        self.stopmin = stopMin
 
     def run(self):
         currentTime = time.time()
-        return currentTime < self.startTime and currentTime > self.stopTime
+        if (currentTime/(60*60)) == int(self.starthours):
+            return (currentTime/60) < int(self.startmin)
+        else:
+            return ((currentTime/(60*60)) < int(self.starthours) and (currentTime/60) < int(self.startmin)) or ((currentTime/(60*60)) > int(self.starthours) and (currentTime/60) > int(self.startmin))

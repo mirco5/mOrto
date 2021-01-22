@@ -57,9 +57,9 @@ class MainLoop:
                 elif y['tp'] == "OnceADay" :
                     checks[x] = OnceADay(y['recipeName'])
                 elif y['tp'] == "ActivationTime" :
-                    checks[x] = ActivationTime(y['time'],y['maxDelta'])
+                    checks[x] = ActivationTime(y['hours'], y['minutes'], y['maxDelta'])
                 elif y['tp'] == "NoActivationPeriod" :
-                    checks[x] = NoActivationPeriod(y['startTime'],y['stopTime'])
+                    checks[x] = NoActivationPeriod(y['starthours'], y['startmin'], y['stophours'], y['stopmin'])
 
             recipes[val['name']] = Recipe(val['name'], val['description'], connectedDevices, val['frequency'], val['duration'], checks)  
 

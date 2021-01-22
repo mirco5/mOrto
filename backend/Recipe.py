@@ -91,11 +91,25 @@ class Recipe():
 
     def checkPreconditions(self):
         checks = 0
-        for x in self.__checks:
+        checksCollection = dict()
+        for k in self.__checks:
+            if self.__checks[k].typ != "EmergencyThreshould" :
+                checksCollection[k] =  self.__checks[k]
+        
+        for x in checksCollection:
             checkResult = self.__checks[x].run()
             if not checkResult:
                 checks = 1
         
+        checksCollection = dict()
+        for k in self.__checks:
+            if self.__checks[k].typ == "EmergencyThreshould" :
+                checksCollection[k] =  self.__checks[k]
+                
+        for x in checksCollection:
+            checkResult = self.__checks[x].run()
+            if checkResult:
+                checks = 0
 
         if self.__frequencyCounter == -1 :
             self.__frequencyCounter = time.time()
