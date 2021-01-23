@@ -74,14 +74,14 @@ class ActivationTime(Check):
 
     def run(self):
         currentTime = time.time()
-        targetTime = time.time()
+        targetTime = currentTime
         targetTime = targetTime + int(self.hours) * (60*60) + int(self.minutes) * 60
         maxTime = targetTime + int(self.maxDelta)
         return currentTime > targetTime and currentTime < maxTime
 
 @Check.register
 class NoActivationPeriod(Check):
-    def __init__(self, startHours, stopHours, startMin, stopMin): 
+    def __init__(self, startHours, startMin, stopHours, stopMin): 
         self.tp = "NoActivationPeriod"
         self.starthours = startHours
         self.stophours = stopHours
@@ -89,8 +89,10 @@ class NoActivationPeriod(Check):
         self.stopmin = stopMin
 
     def run(self):
-        currentTime = time.time()
-        if (currentTime/(60*60)) == int(self.starthours):
-            return (currentTime/60) < int(self.startmin)
+        currentTime =  time.localtime(time.time())
+        if currentTime.tm_hour == int(self.starthours):
+            return currentTime.tm_min < int(self.startmin)
+        elif currentTime.tm_hour == int(self.stophours):
+            return currentTime.tm_min > int(self.stophours)
         else:
-            return ((currentTime/(60*60)) < int(self.starthours) and (currentTime/60) < int(self.startmin)) or ((currentTime/(60*60)) > int(self.starthours) and (currentTime/60) > int(self.startmin))
+            return (currentTime.tm_hour < int(self.starthours)) or (currentTime.tm_hour > int(self.stophours))
